@@ -45,7 +45,7 @@ class Employee(Base):
     __tablename__ = "employees"
 
     id = Column(Integer, primary_key=True, index=True)
-    # Thêm unique=True để đảm bảo tính duy nhất ở mức Database
+    
     employee_code = Column(String(20), unique=True, nullable=False)
     full_name = Column(String(100), nullable=False)
     department_id = Column(
@@ -137,7 +137,7 @@ def get_department_detail(
 
     return department
 
-# Đã sửa lỗi thiếu status 201 Created
+
 @app.post(
     "/employees",
     response_model=EmployeeResponse,
@@ -147,28 +147,28 @@ def create_employee(
     data: EmployeeCreate,
     db: Session = Depends(get_db)
 ):
-    # Lấy phòng ban
+    
     department = (
         db.query(Department)
         .filter(Department.id == data.department_id)
         .first()
     )
     
-    # 1. FIX: Kiểm tra xem department có tồn tại không trước khi làm việc khác
+    
     if department is None:
         raise HTTPException(
             status_code=404,
             detail="Phòng ban không tồn tại"
         )
 
-    # 2. FIX: Kiểm tra trạng thái INACTIVE ngay lập tức
+    
     if department.status == "INACTIVE":
         raise HTTPException(
             status_code=400,
             detail="Phòng ban đã ngừng hoạt động"
         )
 
-    # 3. FIX: Lấy số lượng và kiểm tra giới hạn (sử dụng dấu >= thay vì >)
+    
     current_count = (
         db.query(Employee)
         .filter(Employee.department_id == data.department_id)
@@ -181,7 +181,7 @@ def create_employee(
             detail="Phòng ban đã đủ nhân viên"
         )
 
-    # 4. FIX: Kiểm tra trùng mã nhân viên trên toàn hệ thống (bỏ điều kiện department_id)
+    
     duplicate_employee = (
         db.query(Employee)
         .filter(
